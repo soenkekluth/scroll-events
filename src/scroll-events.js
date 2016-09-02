@@ -28,6 +28,11 @@ export default class ScrollEvents extends EventDispatcher {
   };
 
 
+  static get documentHeight(){
+   return Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight);
+  }
+
+
   static unprefixAnimationFrame = () => {
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
     window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame;
@@ -159,6 +164,11 @@ export default class ScrollEvents extends EventDispatcher {
   }
 
 
+  get scrollPosition(){
+    return this.getScrollPosition();
+  }
+
+
   get directionY() {
     if (this.speedY === 0 && !this.scrolling) {
       this._directionY = ScrollEvents.NONE;
@@ -200,7 +210,7 @@ export default class ScrollEvents extends EventDispatcher {
 
 
   get scrollY() {
-    return this.getScrollPosition().y;
+    return this.scrollPosition.y;
   }
 
   get y() {
@@ -208,7 +218,7 @@ export default class ScrollEvents extends EventDispatcher {
   }
 
   get scrollX() {
-    return this.getScrollPosition().x;
+    return this.scrollPosition.x;
   }
 
   get x() {
@@ -307,7 +317,7 @@ export default class ScrollEvents extends EventDispatcher {
     if(this.scrollY <= 0){
       this.dispatchEvent(ScrollEvents.EVENT_SCROLL_TOP);
     }else{
-      var fullHeight = this.scrollTarget === window ? document.documentElement.scrollHeight : this.scrollTarget.scrollHeight;
+      var fullHeight = this.scrollTarget === window ? ScrollEvents.documentHeight : this.scrollTarget.scrollHeight;
       var clientHeight = this.scrollTarget === window ? document.documentElement.clientHeight : this.scrollTarget.clientHeight;
 
       if(this.scrollY + clientHeight >= fullHeight){

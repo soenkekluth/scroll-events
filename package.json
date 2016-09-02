@@ -1,6 +1,6 @@
 {
   "name": "scroll-events",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Performant Custom ScrollEvents Events",
   "main": "dist/scroll-events.js",
   "scripts": {
