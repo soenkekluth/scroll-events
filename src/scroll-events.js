@@ -114,8 +114,7 @@ export default class ScrollEvents extends EventDispatcher {
     this.onScroll = delegate(this, this.onScroll);
     this.onNextFrame = delegate(this, this.onNextFrame);
 
-    this._scrollY = this.scrollY;
-    // this._scrollX = this.scrollX;
+    this.updateScrollPosition();
 
     if (this.scrollTarget.addEventListener) {
       // this.scrollTarget.addEventListener('mousewheel', this.onScroll, Can.passiveEvents ? { passive: true } : false);
@@ -161,6 +160,12 @@ export default class ScrollEvents extends EventDispatcher {
       directionY: this.directionY
       // directionX: this.directionX
     };
+  }
+
+
+  updateScrollPosition(){
+    this._scrollY = this.scrollY;
+    // this._scrollX = this.scrollX;
   }
 
 
@@ -245,8 +250,7 @@ export default class ScrollEvents extends EventDispatcher {
       this.firstRender = false;
       if (this.scrollY > 1) {
 
-        this._scrollY = this.scrollY;
-        this._scrollX = this.scrollX;
+        this.updateScrollPosition();
         // this.getScrollPosition();
         this.dispatchEvent(ScrollEvents.EVENT_SCROLL_PROGRESS);
         return;
@@ -291,8 +295,7 @@ export default class ScrollEvents extends EventDispatcher {
     }
 
 
-    this._scrollY = this.scrollY;
-    // this._scrollX = this.scrollX;
+    this.updateScrollPosition();
 
     // console.log(this._lastDirection, this.directionY);
     if (this._lastDirection !== this.directionY) {
@@ -309,7 +312,7 @@ export default class ScrollEvents extends EventDispatcher {
 
   onScrollStop() {
     this.scrolling = false;
-    this._scrollY = this.scrollY;
+    this.updateScrollPosition();
 
 
     this.dispatchEvent(ScrollEvents.EVENT_SCROLL_STOP);
