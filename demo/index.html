@@ -13,42 +13,64 @@
 
 <body>
   <div class="follower"></div>
+
+
+  <div class="overflow">
+    <div class="overflow-content">
+
+    </div>
+  </div>
+
+
   <script src="../dist/scroll-events.browser.js"></script>
   <script>
 
   var follower = document.querySelector('.follower');
   var prefixedTransform = PrefixFree.prefixSelector('transform');
 
-  // window.addEventListener('scroll', function(e){
-  //   follower.style[prefixedTransform] = 'translate3d(0,' + window.pageYOffset + 'px,0)';
-  // })
 
 
+  var scroll = new ScrollEvents();
 
-  var scrollEvents = new ScrollEvents();
-
-  scrollEvents.on('scroll:down', function(event) {
+  scroll.on('scroll:down', function(event) {
     console.log('========== scroll:down =============');
   });
 
-  scrollEvents.on('scroll:up', function(event) {
+  scroll.on('scroll:up', function(event) {
     console.log('========== scroll:up =============');
   });
 
-  scrollEvents.on('scroll:start', function(event) {
-    console.log('scroll:start     y:' + scrollEvents.y + '  direction: ' + scrollEvents.directionY+' ('+ ScrollEvents.directionToString(scrollEvents.directionY)+')')
-    follower.style[prefixedTransform] = 'translate3d(0,' + scrollEvents.y + 'px,0)';
+
+  scroll.on('scroll:top', function(event) {
+    console.log('========== scroll:top =============');
   });
 
-  scrollEvents.on('scroll:progress', function(event) {
-    console.log('scroll:progress  y:' + scrollEvents.y + '  direction: ' + scrollEvents.directionY+' ('+ ScrollEvents.directionToString(scrollEvents.directionY)+')')
-    follower.style[prefixedTransform] = 'translate3d(0,' + scrollEvents.y + 'px,0)';
+  scroll.on('scroll:bottom', function(event) {
+    console.log('========== scroll:bottom =============');
   });
 
-  scrollEvents.on('scroll:stop', function(event) {
-    console.log('scroll:stop      y:' + scrollEvents.y + '  direction: ' + scrollEvents.directionY+' ('+ ScrollEvents.directionToString(scrollEvents.directionY)+')')
-    follower.style[prefixedTransform] = 'translate3d(0,' + scrollEvents.y + 'px,0)';
+  scroll.on('scroll:start', function(event) {
+    console.log('scroll:start     y: ' + scroll.y + '  direction: ' + scroll.directionY+' ('+ ScrollEvents.directionToString(scroll.directionY)+')')
+    follower.style[prefixedTransform] = 'translate3d(0,' + scroll.y + 'px,0)';
   });
+
+  scroll.on('scroll:progress', function(event) {
+    console.log('scroll:progress  y: ' + scroll.y +  '  speed: ' + scroll.speedY + '  direction: ' + scroll.directionY+' ('+ ScrollEvents.directionToString(scroll.directionY)+')')
+    follower.style[prefixedTransform] = 'translate3d(0,' + scroll.y + 'px,0)';
+  });
+
+  scroll.on('scroll:stop', function(event) {
+    console.log('scroll:stop      y: ' + scroll.y + '  direction: ' + scroll.directionY+' ('+ ScrollEvents.directionToString(scroll.directionY)+')')
+    follower.style[prefixedTransform] = 'translate3d(0,' + scroll.y + 'px,0)';
+  });
+
+
+  var scroll2 = new ScrollEvents(document.querySelector('.overflow'));
+
+  scroll2.on('scroll:progress', function(event) {
+    console.log('scroll2:progress  y: ' + scroll2.y +  '  speed: ' + scroll2.speedY + '  direction: ' + scroll2.directionY+' ('+ ScrollEvents.directionToString(scroll2.directionY)+')')
+  });
+
   </script>
 </body>
 

@@ -21,3 +21,32 @@ body {
   height:100px;
   border-radius: 50px;
 }
+
+
+.overflow {
+  display: block;
+  position: absolute;
+  left: 50%;
+
+  top: 200px;
+  transform: translateY(-50%);
+  transform: translateX(-50%);
+
+  width: 100%;
+  max-width: 300px;
+  overflow: hidden;
+
+  height: 300px;
+  overflow-y: scroll;
+}
+
+.overflow-content{
+  height: 800px;
+  background: repeating-linear-gradient(
+      180deg,
+      #606dbc,
+      #606dbc 10px,
+      #ffffff 10px,
+      #ffffff 20px
+    );
+}

@@ -39,16 +39,25 @@ var scrollEvents = new ScrollEvents(); // takes window as scroll target
 // or
 new ScrollEvents(yourElement)
 
+
+scrollEvents.on('scroll:down', function(event) {
+  console.log('========== scroll:down =============');
+});
+
+scrollEvents.on('scroll:up', function(event) {
+  console.log('========== scroll:up =============');
+});
+
 scrollEvents.on('scroll:start', function(event) {
-  console.log('scroll:start', event);
+  console.log('scroll:start     y:' + scrollEvents.y + '  direction: ' + scrollEvents.directionY+' ('+ ScrollEvents.directionToString(scrollEvents.directionY)+')')
 });
 
 scrollEvents.on('scroll:progress', function(event) {
-  console.log('scroll:progress', event);
+  console.log('scroll:progress  y:' + scrollEvents.y + '  direction: ' + scrollEvents.directionY+' ('+ ScrollEvents.directionToString(scrollEvents.directionY)+')')
 });
 
 scrollEvents.on('scroll:stop', function(event) {
-  console.log('scroll:stop', event);
+  console.log('scroll:stop      y:' + scrollEvents.y + '  direction: ' + scrollEvents.directionY+' ('+ ScrollEvents.directionToString(scrollEvents.directionY)+')')
 });
 
 ```

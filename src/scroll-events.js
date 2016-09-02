@@ -44,6 +44,8 @@ export default class ScrollEvents extends EventDispatcher {
   static EVENT_SCROLL_STOP = 'scroll:stop';
   static EVENT_SCROLL_DOWN = 'scroll:down';
   static EVENT_SCROLL_UP = 'scroll:up';
+  static EVENT_SCROLL_TOP = 'scroll:top';
+  static EVENT_SCROLL_BOTTOM = 'scroll:bottom';
 
 
   static directionToString(direction) {
@@ -216,14 +218,14 @@ export default class ScrollEvents extends EventDispatcher {
   getWindowScrollPosition() {
     return {
       y: (window.pageYOffset || window.scrollY  || 0),
-      x: (window.pageXOffset || window.scrollX || 0)
+      // x: (window.pageXOffset || window.scrollX || 0)
     }
   }
 
   getElementScrollPosition() {
     return {
       y: this.scrollTarget.scrollTop,
-      x: this.scrollTarget.scrollLeft
+      // x: this.scrollTarget.scrollLeft
     }
   }
 
@@ -299,14 +301,27 @@ export default class ScrollEvents extends EventDispatcher {
     this.scrolling = false;
     this._scrollY = this.scrollY;
 
-    // this.dispatchEvent('scroll:none');
 
+    this.dispatchEvent(ScrollEvents.EVENT_SCROLL_STOP);
+
+    if(this.scrollY <= 0){
+      this.dispatchEvent(ScrollEvents.EVENT_SCROLL_TOP);
+    }else{
+      var fullHeight = this.scrollTarget === window ? document.documentElement.scrollHeight : this.scrollTarget.scrollHeight;
+      var clientHeight = this.scrollTarget === window ? document.documentElement.clientHeight : this.scrollTarget.clientHeight;
+
+      if(this.scrollY + clientHeight >= fullHeight){
+        this.dispatchEvent(ScrollEvents.EVENT_SCROLL_BOTTOM);
+      }
+    }
+
+    // this.dispatchEvent('scroll:none');
     // this._scrollX = this.scrollX;
     if (this.options.animationFrame) {
       this.cancelNextFrame();
       this.currentStopFrames = 0;
     }
-    this.dispatchEvent(ScrollEvents.EVENT_SCROLL_STOP);
+
   }
 
   cancelNextFrame() {
