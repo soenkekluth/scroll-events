@@ -1,1 +1,1 @@
-'use strict';var _fastscroll=require('./fastscroll');var _fastscroll2=_interopRequireDefault(_fastscroll);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj}}module.exports=_fastscroll2.default;
+'use strict';var _scroll=require('./scroll');var _scroll2=_interopRequireDefault(_scroll);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj}}module.exports=_scroll2.default;

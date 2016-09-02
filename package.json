@@ -1,22 +1,22 @@
 {
-  "name": "fastscroll",
+  "name": "scroll",
   "version": "2.1.1",
   "description": "Performant Custom Scroll Events",
-  "main": "dist/fastscroll.js",
+  "main": "dist/scroll.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-js": "browserify --fast -e src/index.js -d --standalone FastScroll -t babelify | derequire | exorcist dist/fastscroll.browser.js.map > dist/fastscroll.browser.js",
-    "dist-js": "BABEL_ENV=production NODE_ENV=production browserify -e src/index.js --standalone FastScroll -t babelify | derequire > dist/fastscroll.browser.js",
-    "dist-js-min": "uglifyjs -cmv dist/fastscroll.browser.js > dist/fastscroll.browser.min.js",
-    "dist": "cp src/fastscroll.css dist/ && npm run dist-js && npm run dist-js-min && npm run build-lib",
+    "build-js": "browserify --fast -e src/index.js -d --standalone Scroll -t babelify | derequire | exorcist dist/scroll.browser.js.map > dist/scroll.browser.js",
+    "dist-js": "BABEL_ENV=production NODE_ENV=production browserify -e src/index.js --standalone Scroll -t babelify | derequire > dist/scroll.browser.js",
+    "dist-js-min": "uglifyjs -cmv dist/scroll.browser.js > dist/scroll.browser.min.js",
+    "dist": "cp src/scroll.css dist/ && npm run dist-js && npm run dist-js-min && npm run build-lib",
     "start": "run-p watch-js server",
     "build-lib": "BABEL_ENV=production babel src -d dist",
-    "watch-js": "watchify -d --poll=100 --fast --standalone FastScroll -e src/index.js -t babelify -o 'exorcist dist/fastscroll.browser.js.map > dist/fastscroll.browser.js' -v",
+    "watch-js": "watchify -d --poll=100 --fast --standalone Scroll -e src/index.js -t babelify -o 'exorcist dist/scroll.browser.js.map > dist/scroll.browser.js' -v",
     "server": "browser-sync start --no-ghost-mode --server --directory --files 'demo/**/**, dist/*.js' --startPath demo/index.html"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/soenkekluth/fastscroll.git"
+    "url": "git+https://github.com/soenkekluth/scroll.git"
   },
   "keywords": [
     "browser",
@@ -37,9 +37,9 @@
   "author": "Sönke Kluth <soenke.kluth@gmail.com> (http://soenkekluth.com/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/soenkekluth/fastscroll/issues"
+    "url": "https://github.com/soenkekluth/scroll/issues"
   },
-  "homepage": "https://github.com/soenkekluth/fastscroll#readme",
+  "homepage": "https://github.com/soenkekluth/scroll#readme",
   "dependencies": {
     "delegatejs": "1.0.1",
     "eventdispatcher": "1.3.1",

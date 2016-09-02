@@ -1,2 +1,2 @@
-import FastScroll from './fastscroll';
-module.exports = FastScroll;
+import Scroll from './scroll';
+module.exports = Scroll;

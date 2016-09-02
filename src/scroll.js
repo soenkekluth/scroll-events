@@ -5,11 +5,11 @@ import { debounce } from 'lodash';
 const _instanceMap = {};
 
 
-export default class FastScroll extends EventDispatcher {
+export default class Scroll extends EventDispatcher {
 
   static getInstance = (scrollTarget, options) => {
     if (!_instanceMap[scrollTarget]) {
-      _instanceMap[scrollTarget] = new FastScroll(scrollTarget, options);
+      _instanceMap[scrollTarget] = new Scroll(scrollTarget, options);
     }
     return _instanceMap[scrollTarget];
   };
@@ -18,11 +18,11 @@ export default class FastScroll extends EventDispatcher {
     return (typeof _instanceMap[scrollTarget] !== 'undefined');
   };
 
-  static hasScrollTarget = FastScroll.hasInstance;
+  static hasScrollTarget = Scroll.hasInstance;
 
   static clearInstance = (scrollTarget = window) => {
-    if (FastScroll.hasInstance(scrollTarget)) {
-      FastScroll.getInstance(scrollTarget).destroy();
+    if (Scroll.hasInstance(scrollTarget)) {
+      Scroll.getInstance(scrollTarget).destroy();
       delete _instanceMap[scrollTarget];
     }
   };
@@ -48,15 +48,15 @@ export default class FastScroll extends EventDispatcher {
 
   static directionToString(direction) {
     switch (direction) {
-      case FastScroll.UP:
+      case Scroll.UP:
         return 'up';
-      case FastScroll.DOWN:
+      case Scroll.DOWN:
         return 'down';
-      case FastScroll.NONE:
+      case Scroll.NONE:
         return 'none';
-      case FastScroll.LEFT:
+      case Scroll.LEFT:
         return 'left';
-      case FastScroll.RIGHT:
+      case Scroll.RIGHT:
         return 'right';
     }
   }
@@ -65,8 +65,8 @@ export default class FastScroll extends EventDispatcher {
 
     super();
 
-    if (FastScroll.hasScrollTarget(scrollTarget)) {
-      return FastScroll.getInstance(scrollTarget);
+    if (Scroll.hasScrollTarget(scrollTarget)) {
+      return Scroll.getInstance(scrollTarget);
     }
 
     this.scrollTarget = scrollTarget;
@@ -76,7 +76,7 @@ export default class FastScroll extends EventDispatcher {
 
     this.options.animationFrame = Can.animationFrame;
     if (this.options.animationFrame) {
-      FastScroll.unprefixAnimationFrame();
+      Scroll.unprefixAnimationFrame();
     }
 
     this.destroyed = false;
@@ -86,13 +86,13 @@ export default class FastScroll extends EventDispatcher {
     this._speedY = 0;
     this._speedX = 0;
     this._lastSpeed = 0;
-    this._lastDirection = FastScroll.NONE;
+    this._lastDirection = Scroll.NONE;
     this.stopFrames = 3;
     this.currentStopFrames = 0;
     this.firstRender = true;
     this.animationFrame = true;
-    this._directionY = FastScroll.NONE;
-    this._directionX = FastScroll.NONE;
+    this._directionY = Scroll.NONE;
+    this._directionX = Scroll.NONE;
 
     this.scrolling = false;
     this.firstScroll = true;
@@ -159,12 +159,12 @@ export default class FastScroll extends EventDispatcher {
 
   get directionY() {
     if (this.speedY === 0 && !this.scrolling) {
-      this._directionY = FastScroll.NONE;
+      this._directionY = Scroll.NONE;
     } else {
       if (this.speedY > 0) {
-        this._directionY = FastScroll.UP;
+        this._directionY = Scroll.UP;
       } else if (this.speedY < 0) {
-        this._directionY = FastScroll.DOWN;
+        this._directionY = Scroll.DOWN;
       }
     }
     return this._directionY;
@@ -172,12 +172,12 @@ export default class FastScroll extends EventDispatcher {
 
   get directionX() {
     if (this.speedX === 0 && !this.scrolling) {
-      this._directionX = FastScroll.NONE;
+      this._directionX = Scroll.NONE;
     } else {
       if (this.speedX > 0) {
-        this._directionX = FastScroll.RIGHT;
+        this._directionX = Scroll.RIGHT;
       } else if (this.speedX < 0) {
-        this._directionX = FastScroll.LEFT;
+        this._directionX = Scroll.LEFT;
       }
     }
     return this._directionX;
@@ -236,7 +236,7 @@ export default class FastScroll extends EventDispatcher {
         this._scrollY = this.scrollY;
         this._scrollX = this.scrollX;
         // this.getScrollPosition();
-        this.dispatchEvent(FastScroll.EVENT_SCROLL_PROGRESS);
+        this.dispatchEvent(Scroll.EVENT_SCROLL_PROGRESS);
         return;
       }
     }
@@ -244,7 +244,7 @@ export default class FastScroll extends EventDispatcher {
     if (!this.scrolling) {
       this.scrolling = true;
       this.firstScroll = true;
-      this.dispatchEvent(FastScroll.EVENT_SCROLL_START);
+      this.dispatchEvent(Scroll.EVENT_SCROLL_START);
       if (this.options.animationFrame) {
         this.nextFrameID = window.requestAnimationFrame(this.onNextFrame);
       } else {
@@ -285,10 +285,10 @@ export default class FastScroll extends EventDispatcher {
     // console.log(this._lastDirection, this.directionY);
     if (this._lastDirection !== this.directionY) {
       // this.firstScroll = false;
-      this.dispatchEvent('scroll:' + FastScroll.directionToString(this.directionY));
+      this.dispatchEvent('scroll:' + Scroll.directionToString(this.directionY));
     }
 
-    this.dispatchEvent(FastScroll.EVENT_SCROLL_PROGRESS);
+    this.dispatchEvent(Scroll.EVENT_SCROLL_PROGRESS);
 
     if (this.options.animationFrame) {
       this.nextFrameID = window.requestAnimationFrame(this.onNextFrame);
@@ -306,7 +306,7 @@ export default class FastScroll extends EventDispatcher {
       this.cancelNextFrame();
       this.currentStopFrames = 0;
     }
-    this.dispatchEvent(FastScroll.EVENT_SCROLL_STOP);
+    this.dispatchEvent(Scroll.EVENT_SCROLL_STOP);
   }
 
   cancelNextFrame() {
