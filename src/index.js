@@ -1,2 +1,2 @@
-import Scroll from './scroll';
-module.exports = Scroll;
+import ScrollEvents from './scroll-events';
+module.exports = ScrollEvents;

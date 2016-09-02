@@ -1,1 +1,1 @@
-'use strict';var _scroll=require('./scroll');var _scroll2=_interopRequireDefault(_scroll);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj}}module.exports=_scroll2.default;
+'use strict';var _scrollEvents=require('./scroll-events');var _scrollEvents2=_interopRequireDefault(_scrollEvents);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj}}module.exports=_scrollEvents2.default;

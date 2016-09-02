@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Scroll = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.ScrollEvents = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict'
 
@@ -19116,17 +19116,17 @@ process.umask = function() { return 0; };
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
-var _scroll = require('./scroll');
+var _scrollEvents = require('./scroll-events');
 
-var _scroll2 = _interopRequireDefault(_scroll);
+var _scrollEvents2 = _interopRequireDefault(_scrollEvents);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-module.exports = _scroll2.default;
+module.exports = _scrollEvents2.default;
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/src/index.js","/src")
 
-},{"./scroll":10,"_process":8,"buffer":2}],10:[function(require,module,exports){
+},{"./scroll-events":10,"_process":8,"buffer":2}],10:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
@@ -19159,39 +19159,39 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var _instanceMap = {};
 
-var Scroll = function (_EventDispatcher) {
-  _inherits(Scroll, _EventDispatcher);
+var ScrollEvents = function (_EventDispatcher) {
+  _inherits(ScrollEvents, _EventDispatcher);
 
-  _createClass(Scroll, null, [{
+  _createClass(ScrollEvents, null, [{
     key: 'directionToString',
     value: function directionToString(direction) {
       switch (direction) {
-        case Scroll.UP:
+        case ScrollEvents.UP:
           return 'up';
-        case Scroll.DOWN:
+        case ScrollEvents.DOWN:
           return 'down';
-        case Scroll.NONE:
+        case ScrollEvents.NONE:
           return 'none';
-        case Scroll.LEFT:
+        case ScrollEvents.LEFT:
           return 'left';
-        case Scroll.RIGHT:
+        case ScrollEvents.RIGHT:
           return 'right';
       }
     }
   }]);
 
-  function Scroll() {
+  function ScrollEvents() {
     var scrollTarget = arguments.length <= 0 || arguments[0] === undefined ? window : arguments[0];
     var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-    _classCallCheck(this, Scroll);
+    _classCallCheck(this, ScrollEvents);
 
-    var _this = _possibleConstructorReturn(this, (Scroll.__proto__ || Object.getPrototypeOf(Scroll)).call(this));
+    var _this = _possibleConstructorReturn(this, (ScrollEvents.__proto__ || Object.getPrototypeOf(ScrollEvents)).call(this));
 
-    if (Scroll.hasScrollTarget(scrollTarget)) {
+    if (ScrollEvents.hasScrollTarget(scrollTarget)) {
       var _ret;
 
-      return _ret = Scroll.getInstance(scrollTarget), _possibleConstructorReturn(_this, _ret);
+      return _ret = ScrollEvents.getInstance(scrollTarget), _possibleConstructorReturn(_this, _ret);
     }
 
     _this.scrollTarget = scrollTarget;
@@ -19201,7 +19201,7 @@ var Scroll = function (_EventDispatcher) {
 
     _this.options.animationFrame = Can.animationFrame;
     if (_this.options.animationFrame) {
-      Scroll.unprefixAnimationFrame();
+      ScrollEvents.unprefixAnimationFrame();
     }
 
     _this.destroyed = false;
@@ -19211,13 +19211,13 @@ var Scroll = function (_EventDispatcher) {
     _this._speedY = 0;
     _this._speedX = 0;
     _this._lastSpeed = 0;
-    _this._lastDirection = Scroll.NONE;
+    _this._lastDirection = ScrollEvents.NONE;
     _this.stopFrames = 3;
     _this.currentStopFrames = 0;
     _this.firstRender = true;
     _this.animationFrame = true;
-    _this._directionY = Scroll.NONE;
-    _this._directionX = Scroll.NONE;
+    _this._directionY = ScrollEvents.NONE;
+    _this._directionX = ScrollEvents.NONE;
 
     _this.scrolling = false;
     _this.firstScroll = true;
@@ -19227,7 +19227,7 @@ var Scroll = function (_EventDispatcher) {
     return _this;
   }
 
-  _createClass(Scroll, [{
+  _createClass(ScrollEvents, [{
     key: 'init',
     value: function init() {
 
@@ -19252,7 +19252,7 @@ var Scroll = function (_EventDispatcher) {
       if (!this.destroyed) {
         this.cancelNextFrame();
 
-        _get(Scroll.prototype.__proto__ || Object.getPrototypeOf(Scroll.prototype), 'destroy', this).call(this);
+        _get(ScrollEvents.prototype.__proto__ || Object.getPrototypeOf(ScrollEvents.prototype), 'destroy', this).call(this);
 
         if (this.scrollTarget.addEventListener) {
           // this.scrollTarget.removeEventListener('mousewheel', this.onScroll);
@@ -19296,7 +19296,7 @@ var Scroll = function (_EventDispatcher) {
           this._scrollY = this.scrollY;
           this._scrollX = this.scrollX;
           // this.getScrollPosition();
-          this.dispatchEvent(Scroll.EVENT_SCROLL_PROGRESS);
+          this.dispatchEvent(ScrollEvents.EVENT_SCROLL_PROGRESS);
           return;
         }
       }
@@ -19304,7 +19304,7 @@ var Scroll = function (_EventDispatcher) {
       if (!this.scrolling) {
         this.scrolling = true;
         this.firstScroll = true;
-        this.dispatchEvent(Scroll.EVENT_SCROLL_START);
+        this.dispatchEvent(ScrollEvents.EVENT_SCROLL_START);
         if (this.options.animationFrame) {
           this.nextFrameID = window.requestAnimationFrame(this.onNextFrame);
         } else {
@@ -19344,10 +19344,10 @@ var Scroll = function (_EventDispatcher) {
       // console.log(this._lastDirection, this.directionY);
       if (this._lastDirection !== this.directionY) {
         // this.firstScroll = false;
-        this.dispatchEvent('scroll:' + Scroll.directionToString(this.directionY));
+        this.dispatchEvent('scroll:' + ScrollEvents.directionToString(this.directionY));
       }
 
-      this.dispatchEvent(Scroll.EVENT_SCROLL_PROGRESS);
+      this.dispatchEvent(ScrollEvents.EVENT_SCROLL_PROGRESS);
 
       if (this.options.animationFrame) {
         this.nextFrameID = window.requestAnimationFrame(this.onNextFrame);
@@ -19366,7 +19366,7 @@ var Scroll = function (_EventDispatcher) {
         this.cancelNextFrame();
         this.currentStopFrames = 0;
       }
-      this.dispatchEvent(Scroll.EVENT_SCROLL_STOP);
+      this.dispatchEvent(ScrollEvents.EVENT_SCROLL_STOP);
     }
   }, {
     key: 'cancelNextFrame',
@@ -19391,12 +19391,12 @@ var Scroll = function (_EventDispatcher) {
     key: 'directionY',
     get: function get() {
       if (this.speedY === 0 && !this.scrolling) {
-        this._directionY = Scroll.NONE;
+        this._directionY = ScrollEvents.NONE;
       } else {
         if (this.speedY > 0) {
-          this._directionY = Scroll.UP;
+          this._directionY = ScrollEvents.UP;
         } else if (this.speedY < 0) {
-          this._directionY = Scroll.DOWN;
+          this._directionY = ScrollEvents.DOWN;
         }
       }
       return this._directionY;
@@ -19405,12 +19405,12 @@ var Scroll = function (_EventDispatcher) {
     key: 'directionX',
     get: function get() {
       if (this.speedX === 0 && !this.scrolling) {
-        this._directionX = Scroll.NONE;
+        this._directionX = ScrollEvents.NONE;
       } else {
         if (this.speedX > 0) {
-          this._directionX = Scroll.RIGHT;
+          this._directionX = ScrollEvents.RIGHT;
         } else if (this.speedX < 0) {
-          this._directionX = Scroll.LEFT;
+          this._directionX = ScrollEvents.LEFT;
         }
       }
       return this._directionX;
@@ -19452,47 +19452,47 @@ var Scroll = function (_EventDispatcher) {
     }
   }]);
 
-  return Scroll;
+  return ScrollEvents;
 }(_eventdispatcher2.default);
 
-Scroll.getInstance = function (scrollTarget, options) {
+ScrollEvents.getInstance = function (scrollTarget, options) {
   if (!_instanceMap[scrollTarget]) {
-    _instanceMap[scrollTarget] = new Scroll(scrollTarget, options);
+    _instanceMap[scrollTarget] = new ScrollEvents(scrollTarget, options);
   }
   return _instanceMap[scrollTarget];
 };
 
-Scroll.hasInstance = function (scrollTarget) {
+ScrollEvents.hasInstance = function (scrollTarget) {
   return typeof _instanceMap[scrollTarget] !== 'undefined';
 };
 
-Scroll.hasScrollTarget = Scroll.hasInstance;
+ScrollEvents.hasScrollTarget = ScrollEvents.hasInstance;
 
-Scroll.clearInstance = function () {
+ScrollEvents.clearInstance = function () {
   var scrollTarget = arguments.length <= 0 || arguments[0] === undefined ? window : arguments[0];
 
-  if (Scroll.hasInstance(scrollTarget)) {
-    Scroll.getInstance(scrollTarget).destroy();
+  if (ScrollEvents.hasInstance(scrollTarget)) {
+    ScrollEvents.getInstance(scrollTarget).destroy();
     delete _instanceMap[scrollTarget];
   }
 };
 
-Scroll.unprefixAnimationFrame = function () {
+ScrollEvents.unprefixAnimationFrame = function () {
   window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
   window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame;
 };
 
-Scroll.UP = -1;
-Scroll.DOWN = 1;
-Scroll.NONE = 0;
-Scroll.LEFT = -2;
-Scroll.RIGHT = 2;
-Scroll.EVENT_SCROLL_PROGRESS = 'scroll:progress';
-Scroll.EVENT_SCROLL_START = 'scroll:start';
-Scroll.EVENT_SCROLL_STOP = 'scroll:stop';
-Scroll.EVENT_SCROLL_DOWN = 'scroll:down';
-Scroll.EVENT_SCROLL_UP = 'scroll:up';
-exports.default = Scroll;
+ScrollEvents.UP = -1;
+ScrollEvents.DOWN = 1;
+ScrollEvents.NONE = 0;
+ScrollEvents.LEFT = -2;
+ScrollEvents.RIGHT = 2;
+ScrollEvents.EVENT_SCROLL_PROGRESS = 'scroll:progress';
+ScrollEvents.EVENT_SCROLL_START = 'scroll:start';
+ScrollEvents.EVENT_SCROLL_STOP = 'scroll:stop';
+ScrollEvents.EVENT_SCROLL_DOWN = 'scroll:down';
+ScrollEvents.EVENT_SCROLL_UP = 'scroll:up';
+exports.default = ScrollEvents;
 
 
 var passiveEvents = null;
@@ -19531,8 +19531,8 @@ var Can = function () {
 
 module.exports = exports['default'];
 
-}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/src/scroll.js","/src")
+}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/src/scroll-events.js","/src")
 
 },{"_process":8,"buffer":2,"delegatejs":3,"eventdispatcher":4,"lodash":7}]},{},[9])(9)
 });
-//# sourceMappingURL=scroll.browser.js.map
+//# sourceMappingURL=scroll-events.browser.js.map
