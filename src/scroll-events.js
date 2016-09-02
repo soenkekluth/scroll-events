@@ -230,6 +230,17 @@ export default class ScrollEvents extends EventDispatcher {
     return this.scrollX;
   }
 
+
+  get clientHeight(){
+    return (this.scrollTarget === window ? window.innerHeight: this.scrollTarget.clientHeight);
+    //document.documentElement.clientHeight
+  }
+
+
+  get scrollHeight(){
+    return (this.scrollTarget === window ? ScrollEvents.documentHeight : this.scrollTarget.scrollHeight);
+  }
+
   getWindowScrollPosition() {
     return {
       y: (window.pageYOffset || window.scrollY  || 0),
@@ -320,10 +331,9 @@ export default class ScrollEvents extends EventDispatcher {
     if(this.scrollY <= 0){
       this.dispatchEvent(ScrollEvents.EVENT_SCROLL_TOP);
     }else{
-      var fullHeight = this.scrollTarget === window ? ScrollEvents.documentHeight : this.scrollTarget.scrollHeight;
-      var clientHeight = this.scrollTarget === window ? document.documentElement.clientHeight : this.scrollTarget.clientHeight;
 
-      if(this.scrollY + clientHeight >= fullHeight){
+
+      if(this.scrollY + this.clientHeight >= this.scrollHeight){
         this.dispatchEvent(ScrollEvents.EVENT_SCROLL_BOTTOM);
       }
     }

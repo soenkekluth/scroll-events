@@ -55,9 +55,28 @@
 
   var scroll2 = new ScrollEvents(document.querySelector('.overflow'));
 
-  scroll2.on('scroll:progress', function(event) {
+  scroll2
+  .on('scroll:start', function(event) {
+    console.log('scroll2:start     y: ' + scroll2.y + '  direction: ' + scroll2.directionY + ' (' + ScrollEvents.directionToString(scroll2.directionY) + ')')
+  })
+  .on('scroll:progress', function(event) {
     console.log('scroll2:progress  y: ' + scroll2.y + '  speed: ' + scroll2.speedY + '  direction: ' + scroll2.directionY + ' (' + ScrollEvents.directionToString(scroll2.directionY) + ')')
-  });
+  })
+  .on('scroll:stop', function(event) {
+    console.log('scroll2:stop      y: ' + scroll2.y + '  direction: ' + scroll2.directionY + ' (' + ScrollEvents.directionToString(scroll2.directionY) + ')')
+  })
+  .on('scroll:down', function(event) {
+    console.log('========== scroll2:down =============');
+  })
+  .on('scroll:up', function(event) {
+    console.log('========== scroll2:up =============');
+  })
+  .on('scroll:top', function(event) {
+    console.log('========== scroll2:top =============');
+  })
+  .on('scroll:bottom', function(event) {
+    console.log('========== scroll2:bottom =============');
+  })
   </script>
 </body>
 
