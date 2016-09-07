@@ -7,29 +7,33 @@ const _instanceMap = {};
 
 export default class ScrollEvents extends EventDispatcher {
 
-  static getInstance = (scrollTarget, options) => {
-    if (!_instanceMap[scrollTarget]) {
-      _instanceMap[scrollTarget] = new ScrollEvents(scrollTarget, options);
+  static getInstance = (_scrollTarget, options) => {
+    if (!_instanceMap[_scrollTarget]) {
+      _instanceMap[_scrollTarget] = new ScrollEvents(_scrollTarget, options);
     }
-    return _instanceMap[scrollTarget];
+    return _instanceMap[_scrollTarget];
   };
 
-  static hasInstance = (scrollTarget) => {
-    return (typeof _instanceMap[scrollTarget] !== 'undefined');
+  static hasInstance = (_scrollTarget) => {
+    return (typeof _instanceMap[_scrollTarget] !== 'undefined');
   };
 
   static hasScrollTarget = ScrollEvents.hasInstance;
 
-  static clearInstance = (scrollTarget = window) => {
-    if (ScrollEvents.hasInstance(scrollTarget)) {
-      ScrollEvents.getInstance(scrollTarget).destroy();
-      delete _instanceMap[scrollTarget];
+  static clearInstance = (_scrollTarget = window) => {
+    if (ScrollEvents.hasInstance(_scrollTarget)) {
+      ScrollEvents.getInstance(_scrollTarget).destroy();
+      delete _instanceMap[_scrollTarget];
     }
   };
 
 
-  static get documentHeight(){
-   return Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight);
+  static get documentHeight() {
+    return Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight);
+  }
+
+  static get documentWidth() {
+    return Math.max(document.body.scrollWidth, document.body.offsetWidth, document.documentElement.clientWidth, document.documentElement.scrollWidth, document.documentElement.offsetWidth);
   }
 
 
@@ -51,6 +55,7 @@ export default class ScrollEvents extends EventDispatcher {
   static EVENT_SCROLL_UP = 'scroll:up';
   static EVENT_SCROLL_TOP = 'scroll:top';
   static EVENT_SCROLL_BOTTOM = 'scroll:bottom';
+  static EVENT_SCROLL_RESIZE = 'scroll:resize';
 
 
   static directionToString(direction) {
@@ -76,7 +81,7 @@ export default class ScrollEvents extends EventDispatcher {
       return ScrollEvents.getInstance(scrollTarget);
     }
 
-    this.scrollTarget = scrollTarget;
+    this._scrollTarget = scrollTarget;
     this.options = options;
 
     _instanceMap[scrollTarget] = this;
@@ -86,23 +91,20 @@ export default class ScrollEvents extends EventDispatcher {
       ScrollEvents.unprefixAnimationFrame();
     }
 
-    this.destroyed = false;
+    this._destroyed = false;
     this._scrollY = 0;
     this._scrollX = 0;
-    this.timeout = 0;
+    this._timeout = 0;
     this._speedY = 0;
     this._speedX = 0;
     this._lastSpeed = 0;
     this._lastDirection = ScrollEvents.NONE;
-    this.stopFrames = 3;
-    this.currentStopFrames = 0;
-    this.firstRender = true;
-    this.animationFrame = true;
+    this._stopFrames = 3;
+    this._currentStopFrames = 0;
+    this._firstRender = true;
     this._directionY = ScrollEvents.NONE;
     this._directionX = ScrollEvents.NONE;
-
-    this.scrolling = false;
-    this.firstScroll = true;
+    this._scrolling = false;
 
     this.init();
 
@@ -110,43 +112,62 @@ export default class ScrollEvents extends EventDispatcher {
 
   init() {
 
-    this.getScrollPosition = (this.scrollTarget === window) ? delegate(this, this.getWindowScrollPosition) : delegate(this, this.getElementScrollPosition);
+    this.getScrollPosition = (this._scrollTarget === window) ? delegate(this, this._getWindowScrollPosition) : delegate(this, this._getElementScrollPosition);
+
     this.onScroll = delegate(this, this.onScroll);
+    this.onResize = delegate(this, this.onResize);
     this.onNextFrame = delegate(this, this.onNextFrame);
 
     this.updateScrollPosition();
 
-    if (this.scrollTarget.addEventListener) {
-      // this.scrollTarget.addEventListener('mousewheel', this.onScroll, Can.passiveEvents ? { passive: true } : false);
-      this.scrollTarget.addEventListener('scroll', this.onScroll, Can.passiveEvents ? { passive: true } : false);
-    } else if (this.scrollTarget.attachEvent) {
-      // this.scrollTarget.attachEvent('onmousewheel', this.onScroll);
-      this.scrollTarget.attachEvent('scroll', this.onScroll);
+    if (this._scrollTarget.addEventListener) {
+      // this._scrollTarget.addEventListener('mousewheel', this.onScroll, Can.passiveEvents ? { passive: true } : false);
+      this._scrollTarget.addEventListener('scroll', this.onScroll, Can.passiveEvents ? { passive: true } : false);
+      this._scrollTarget.addEventListener('resize' ,this.onResize, false);
+    } else if (this._scrollTarget.attachEvent) {
+      // this._scrollTarget.attachEvent('onmousewheel', this.onScroll);
+      this._scrollTarget.attachEvent('scroll', this.onScroll);
+      this._scrollTarget.attachEvent('resize', this.onResize);
     }
   }
 
 
+  update(){
+    var scrollY = this._scrollY;
+    this.updateScrollPosition();
+    if(scrollY !== this.y){
+      this.dispatchEvent(ScrollEvents.EVENT_SCROLL_PROGRESS);
+    }
+  }
+
+
+  get destroyed() {
+    return this._destroyed;
+  }
 
 
   destroy() {
-    if (!this.destroyed) {
-      this.cancelNextFrame();
+    if (!this._destroyed) {
+      this._cancelNextFrame();
 
       super.destroy();
 
-      if (this.scrollTarget.addEventListener) {
-        // this.scrollTarget.removeEventListener('mousewheel', this.onScroll);
-        this.scrollTarget.removeEventListener('scroll', this.onScroll);
-      } else if (this.scrollTarget.attachEvent) {
-        // this.scrollTarget.detachEvent('onmousewheel', this.onScroll);
-        this.scrollTarget.detachEvent('scroll', this.onScroll);
+      if (this._scrollTarget.addEventListener) {
+        // this._scrollTarget.removeEventListener('mousewheel', this.onScroll);
+        this._scrollTarget.removeEventListener('scroll', this.onScroll);
+        this._scrollTarget.removeEventListener('resize', this.onResize);
+      } else if (this._scrollTarget.attachEvent) {
+        // this._scrollTarget.detachEvent('onmousewheel', this.onScroll);
+        this._scrollTarget.detachEvent('scroll', this.onScroll);
+        this._scrollTarget.detachEvent('resize', this.onResize);
       }
 
+      this.onResize = null;
       this.onScroll = null;
       this.getScrollPosition = null;
       this.onNextFrame = null;
-      this.scrollTarget = null;
-      this.destroyed = true;
+      this._scrollTarget = null;
+      this._destroyed = true;
     }
   }
 
@@ -158,24 +179,24 @@ export default class ScrollEvents extends EventDispatcher {
       // speedX: this.speedX,
       // angle: 0,
       directionY: this.directionY
-      // directionX: this.directionX
+        // directionX: this.directionX
     };
   }
 
 
-  updateScrollPosition(){
+  updateScrollPosition() {
     this._scrollY = this.scrollY;
     // this._scrollX = this.scrollX;
   }
 
 
-  get scrollPosition(){
+  get scrollPosition() {
     return this.getScrollPosition();
   }
 
 
   get directionY() {
-    if (this.speedY === 0 && !this.scrolling) {
+    if (this.speedY === 0 && !this._scrolling) {
       this._directionY = ScrollEvents.NONE;
     } else {
       if (this.speedY > 0) {
@@ -188,7 +209,7 @@ export default class ScrollEvents extends EventDispatcher {
   }
 
   get directionX() {
-    if (this.speedX === 0 && !this.scrolling) {
+    if (this.speedX === 0 && !this._scrolling) {
       this._directionX = ScrollEvents.NONE;
     } else {
       if (this.speedX > 0) {
@@ -201,8 +222,16 @@ export default class ScrollEvents extends EventDispatcher {
   }
 
 
+  get scrollTarget() {
+    return this._scrollTarget;
+  }
+
   get delta() {
     return this.directionY;
+  }
+
+  get scrolling() {
+    return this._scrolling;
   }
 
   get speedY() {
@@ -231,54 +260,67 @@ export default class ScrollEvents extends EventDispatcher {
   }
 
 
-  get clientHeight(){
-    return (this.scrollTarget === window ? window.innerHeight: this.scrollTarget.clientHeight);
+  get clientHeight() {
+    return (this._scrollTarget === window ? window.innerHeight : this._scrollTarget.clientHeight);
+    //document.documentElement.clientHeight
+  }
+
+  get clientWidth() {
+    return (this._scrollTarget === window ? window.innerWidth : this._scrollTarget.clientWidth);
     //document.documentElement.clientHeight
   }
 
 
-  get scrollHeight(){
-    return (this.scrollTarget === window ? ScrollEvents.documentHeight : this.scrollTarget.scrollHeight);
+  get scrollHeight() {
+    return (this._scrollTarget === window ? ScrollEvents.documentHeight : this._scrollTarget.scrollHeight);
   }
 
-  getWindowScrollPosition() {
+  get scrollWidth() {
+    return (this._scrollTarget === window ? ScrollEvents.documentHeight : this._scrollTarget.scrollHeight);
+  }
+
+  _getWindowScrollPosition() {
     return {
-      y: (window.pageYOffset || window.scrollY  || 0),
+      y: (window.pageYOffset || window.scrollY || 0),
       // x: (window.pageXOffset || window.scrollX || 0)
     }
   }
 
-  getElementScrollPosition() {
+  _getElementScrollPosition() {
     return {
-      y: this.scrollTarget.scrollTop,
-      // x: this.scrollTarget.scrollLeft
+      y: this._scrollTarget.scrollTop,
+      // x: this._scrollTarget.scrollLeft
     }
   }
 
+  onResize() {
+    this.dispatchEvent(ScrollEvents.EVENT_SCROLL_RESIZE);
+  }
+
+
   onScroll() {
-    this.currentStopFrames = 0;
-    if (this.firstRender) {
-      this.firstRender = false;
+    this._currentStopFrames = 0;
+    if (this._firstRender) {
+      this._firstRender = false;
       if (this.scrollY > 1) {
 
         this.updateScrollPosition();
-        // this.getScrollPosition();
         this.dispatchEvent(ScrollEvents.EVENT_SCROLL_PROGRESS);
         return;
       }
     }
 
-    if (!this.scrolling) {
-      this.scrolling = true;
-      this.firstScroll = true;
+    if (!this._scrolling) {
+      this._scrolling = true;
+
       this.dispatchEvent(ScrollEvents.EVENT_SCROLL_START);
       if (this.options.animationFrame) {
         this.nextFrameID = window.requestAnimationFrame(this.onNextFrame);
       } else {
-        clearTimeout(this.timeout);
+        clearTimeout(this._timeout);
         this.onNextFrame();
         var self = this;
-        this.timeout = setTimeout(function() {
+        this._timeout = setTimeout(function() {
           self.onScrollStop();
         }, 100);
       }
@@ -294,13 +336,13 @@ export default class ScrollEvents extends EventDispatcher {
 
 
 
-    // if(this.options.animationFrame && this.scrolling && ((this._scrollY === this.scrollY ) && (this._lastSpeed === 0 && this.speedY === 0) && (this.directionY === this._lastDirection) && (++this.currentStopFrames > this.stopFrames) /*&& this.directionY === this._lastDirection*/) ){
+    // if(this.options.animationFrame && this._scrolling && ((this._scrollY === this.scrollY ) && (this._lastSpeed === 0 && this.speedY === 0) && (this.directionY === this._lastDirection) && (++this._currentStopFrames > this._stopFrames) /*&& this.directionY === this._lastDirection*/) ){
     //   this.onScrollStop();
     //   return;
     // }
 
 
-    if (this.options.animationFrame && (this.scrolling && (this.speedY === 0 && (this.currentStopFrames++ > this.stopFrames)))) {
+    if (this.options.animationFrame && (this._scrolling && (this.speedY === 0 && (this._currentStopFrames++ > this._stopFrames)))) {
       this.onScrollStop();
       return;
     }
@@ -310,7 +352,6 @@ export default class ScrollEvents extends EventDispatcher {
 
     // console.log(this._lastDirection, this.directionY);
     if (this._lastDirection !== this.directionY) {
-      // this.firstScroll = false;
       this.dispatchEvent('scroll:' + ScrollEvents.directionToString(this.directionY));
     }
 
@@ -322,18 +363,18 @@ export default class ScrollEvents extends EventDispatcher {
   }
 
   onScrollStop() {
-    this.scrolling = false;
+    this._scrolling = false;
     this.updateScrollPosition();
 
 
     this.dispatchEvent(ScrollEvents.EVENT_SCROLL_STOP);
 
-    if(this.scrollY <= 0){
+    if (this.scrollY <= 0) {
       this.dispatchEvent(ScrollEvents.EVENT_SCROLL_TOP);
-    }else{
+    } else {
 
 
-      if(this.scrollY + this.clientHeight >= this.scrollHeight){
+      if (this.scrollY + this.clientHeight >= this.scrollHeight) {
         this.dispatchEvent(ScrollEvents.EVENT_SCROLL_BOTTOM);
       }
     }
@@ -341,13 +382,13 @@ export default class ScrollEvents extends EventDispatcher {
     // this.dispatchEvent('scroll:none');
     // this._scrollX = this.scrollX;
     if (this.options.animationFrame) {
-      this.cancelNextFrame();
-      this.currentStopFrames = 0;
+      this._cancelNextFrame();
+      this._currentStopFrames = 0;
     }
 
   }
 
-  cancelNextFrame() {
+  _cancelNextFrame() {
     window.cancelAnimationFrame(this.nextFrameID);
     this.nextFrameID = 0;
   }

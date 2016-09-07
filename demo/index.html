@@ -26,7 +26,12 @@
 
   var scroll = new ScrollEvents();
 
+
+  window.scroll = scroll;
   scroll
+    .on('scroll:resize', function(event) {
+      console.log('========== scroll:resize =============', scroll.clientHeight, scroll.clientWidth);
+    })
     .on('scroll:down', function(event) {
       console.log('========== scroll:down =============');
     })
