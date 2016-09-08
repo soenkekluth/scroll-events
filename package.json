@@ -1,8 +1,9 @@
 {
   "name": "scroll-events",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Performant Custom ScrollEvents Events",
   "main": "dist/scroll-events.js",
+  "jsnext:main": "src/scroll-events.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-js": "browserify --fast -e src/index.js -d --standalone ScrollEvents -t babelify | derequire | exorcist dist/scroll-events.browser.js.map > dist/scroll-events.browser.js",
@@ -42,7 +43,7 @@
   "homepage": "https://github.com/soenkekluth/scroll-events#readme",
   "dependencies": {
     "delegatejs": "1.0.1",
-    "eventdispatcher": "1.4.0"
+    "eventdispatcher": "1.5.0"
   },
   "devDependencies": {
     "babel-cli": "6.14.0",
