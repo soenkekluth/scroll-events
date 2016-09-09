@@ -131,7 +131,7 @@ export default class ScrollEvents extends EventDispatcher {
     var scrollY = this._scrollY;
     this.updateScrollPosition();
     if(scrollY !== this.y){
-      this.dispatchEvent(ScrollEvents.EVENT_SCROLL_PROGRESS);
+      this.trigger(ScrollEvents.EVENT_SCROLL_PROGRESS);
     }
   }
 
@@ -245,7 +245,6 @@ export default class ScrollEvents extends EventDispatcher {
 
   get clientHeight() {
     return (this._scrollTarget === window ? window.innerHeight : this._scrollTarget.clientHeight);
-    //document.documentElement.clientHeight
   }
 
   get clientWidth() {
@@ -277,7 +276,7 @@ export default class ScrollEvents extends EventDispatcher {
   }
 
   onResize() {
-    this.dispatchEvent(ScrollEvents.EVENT_SCROLL_RESIZE);
+    this.trigger(ScrollEvents.EVENT_SCROLL_RESIZE);
   }
 
 
@@ -286,17 +285,16 @@ export default class ScrollEvents extends EventDispatcher {
     if (this._firstRender) {
       this._firstRender = false;
       if (this.y > 1) {
-
         this.updateScrollPosition();
-        this.dispatchEvent(ScrollEvents.EVENT_SCROLL_PROGRESS);
+        this.trigger(ScrollEvents.EVENT_SCROLL_PROGRESS);
         return;
       }
     }
 
     if (!this._scrolling) {
       this._scrolling = true;
-
-      this.dispatchEvent(ScrollEvents.EVENT_SCROLL_START);
+      this._lastDirection = ScrollEvents.NONE;
+      this.trigger(ScrollEvents.EVENT_SCROLL_START);
       if (this.options.animationFrame) {
         this.nextFrameID = window.requestAnimationFrame(this.onNextFrame);
       } else {
@@ -311,7 +309,8 @@ export default class ScrollEvents extends EventDispatcher {
 
   onNextFrame() {
 
-    this._lastDirection = this.directionY;
+
+
     // this._lastSpeed = this.speedY;
     this._speedY = this._scrollY - this.scrollY;
     // this._speedX = this._scrollX - this.scrollX;
@@ -325,10 +324,13 @@ export default class ScrollEvents extends EventDispatcher {
     this.updateScrollPosition();
 
     if (this._lastDirection !== this.directionY) {
-      this.dispatchEvent('scroll:' + ScrollEvents.directionToString(this.directionY));
+      this.trigger('scroll:' + ScrollEvents.directionToString(this.directionY));
     }
 
-    this.dispatchEvent(ScrollEvents.EVENT_SCROLL_PROGRESS);
+    this._lastDirection = this.directionY;
+
+
+    this.trigger(ScrollEvents.EVENT_SCROLL_PROGRESS);
 
     if (this.options.animationFrame) {
       this.nextFrameID = window.requestAnimationFrame(this.onNextFrame);
@@ -340,17 +342,13 @@ export default class ScrollEvents extends EventDispatcher {
     this.updateScrollPosition();
 
 
-    this.dispatchEvent(ScrollEvents.EVENT_SCROLL_STOP);
+    this.trigger(ScrollEvents.EVENT_SCROLL_STOP);
 
     if (this.y <= 0) {
-      this.dispatchEvent(ScrollEvents.EVENT_SCROLL_TOP);
-    } else {
-
-
-      if (this.y + this.clientHeight >= this.scrollHeight) {
-        this.dispatchEvent(ScrollEvents.EVENT_SCROLL_BOTTOM);
+      this.trigger(ScrollEvents.EVENT_SCROLL_TOP);
+    } else if (this.y + this.clientHeight >= this.scrollHeight) {
+        this.trigger(ScrollEvents.EVENT_SCROLL_BOTTOM);
       }
-    }
 
     if (this.options.animationFrame) {
       this._cancelNextFrame();
