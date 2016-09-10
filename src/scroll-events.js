@@ -1,27 +1,27 @@
 import delegate from 'delegatejs';
 import EventDispatcher from 'eventdispatcher';
 
-const _instanceMap = {};
-
-
 export default class ScrollEvents extends EventDispatcher {
 
-  static getInstance(scrollTarget, options){
-    if (!_instanceMap[scrollTarget]) {
-      _instanceMap[scrollTarget] = new ScrollEvents(scrollTarget, options);
+  static getInstance(scrollTarget, options) {
+    if (!scrollTarget.scrollEvents) {
+      return new ScrollEvents(scrollTarget, options);
     }
-    return _instanceMap[scrollTarget];
+    return scrollTarget.scrollEvents;
   }
 
-  static hasInstance(scrollTarget){
-    return (typeof _instanceMap[scrollTarget] !== 'undefined');
+  static hasInstance(scrollTarget) {
+    return (typeof scrollTarget.scrollEvents !== 'undefined');
   }
 
   static hasScrollTarget = ScrollEvents.hasInstance;
 
-
   static get windowScrollY() {
-    return  (window.pageYOffset || window.scrollY || 0);
+    return (window.pageYOffset || window.scrollY || 0);
+  }
+
+  static get windowScrollX() {
+    return (window.pageXOffset || window.scrollX || 0);
   }
 
   static get documentHeight() {
@@ -32,7 +32,7 @@ export default class ScrollEvents extends EventDispatcher {
     return Math.max(document.body.scrollWidth, document.body.offsetWidth, document.documentElement.clientWidth, document.documentElement.scrollWidth, document.documentElement.offsetWidth);
   }
 
-  static unprefixAnimationFrame(){
+  static unprefixAnimationFrame() {
     window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
     window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame;
   }
@@ -40,16 +40,16 @@ export default class ScrollEvents extends EventDispatcher {
   static UP = -1;
   static DOWN = 1;
   static NONE = 0;
-  static LEFT = -2;
   static RIGHT = 2;
+  static LEFT = -2;
 
   static EVENT_SCROLL_PROGRESS = 'scroll:progress';
   static EVENT_SCROLL_START = 'scroll:start';
   static EVENT_SCROLL_STOP = 'scroll:stop';
   static EVENT_SCROLL_DOWN = 'scroll:down';
   static EVENT_SCROLL_UP = 'scroll:up';
-  static EVENT_SCROLL_TOP = 'scroll:top';
-  static EVENT_SCROLL_BOTTOM = 'scroll:bottom';
+  static EVENT_SCROLL_MIN = 'scroll:min';
+  static EVENT_SCROLL_MAX = 'scroll:max';
   static EVENT_SCROLL_RESIZE = 'scroll:resize';
 
 
@@ -70,16 +70,15 @@ export default class ScrollEvents extends EventDispatcher {
 
   constructor(scrollTarget = window, options = {}) {
 
-    super();
-
     if (ScrollEvents.hasScrollTarget(scrollTarget)) {
       return ScrollEvents.getInstance(scrollTarget);
     }
 
+    super({target: scrollTarget});
+
+    scrollTarget.scrollEvents = this;
     this._scrollTarget = scrollTarget;
     this.options = options;
-
-    _instanceMap[scrollTarget] = this;
 
     this.options.animationFrame = Can.animationFrame;
     if (this.options.animationFrame) {
@@ -99,13 +98,16 @@ export default class ScrollEvents extends EventDispatcher {
     this._speedY = 0;
     this._speedX = 0;
     this._lastSpeed = 0;
-    this._lastDirection = ScrollEvents.NONE;
+    this._lastDirectionY = ScrollEvents.NONE;
+    this._lastDirectionX = ScrollEvents.NONE;
     this._stopFrames = 3;
     this._currentStopFrames = 0;
     this._firstRender = true;
     this._directionY = ScrollEvents.NONE;
     this._directionX = ScrollEvents.NONE;
     this._scrolling = false;
+    this._canScrollY = false;
+    this._canScrollX = false;
 
     this.getScrollPosition = (this._scrollTarget === window) ? delegate(this, this._getWindowScrollPosition) : delegate(this, this._getElementScrollPosition);
 
@@ -115,10 +117,18 @@ export default class ScrollEvents extends EventDispatcher {
 
     this.updateScrollPosition();
 
+    this._canScrollY = this.clientHeight < this.scrollHeight;
+    this._canScrollX = this.clientWidth < this.scrollWidth;
+    if (this._scrollTarget !== window) {
+      var style = window.getComputedStyle(this._scrollTarget);
+      this._canScrollY = style['overflow-y'] !== 'hidden';
+      this._canScrollX = style['overflow-x'] !== 'hidden';
+    }
+
     if (this._scrollTarget.addEventListener) {
       // this._scrollTarget.addEventListener('mousewheel', this.onScroll, Can.passiveEvents ? { passive: true } : false);
       this._scrollTarget.addEventListener('scroll', this.onScroll, false);
-      this._scrollTarget.addEventListener('resize' ,this.onResize, false);
+      this._scrollTarget.addEventListener('resize', this.onResize, false);
     } else if (this._scrollTarget.attachEvent) {
       // this._scrollTarget.attachEvent('onmousewheel', this.onScroll);
       this._scrollTarget.attachEvent('scroll', this.onScroll);
@@ -127,10 +137,11 @@ export default class ScrollEvents extends EventDispatcher {
   }
 
 
-  update(){
+  update() {
     var scrollY = this._scrollY;
+    var scrollX = this._scrollX;
     this.updateScrollPosition();
-    if(scrollY !== this.y){
+    if (scrollY !== this.y || scrollX !== this.x) {
       this.trigger(ScrollEvents.EVENT_SCROLL_PROGRESS);
     }
   }
@@ -168,8 +179,9 @@ export default class ScrollEvents extends EventDispatcher {
 
 
   updateScrollPosition() {
+
     this._scrollY = this.scrollY;
-    // this._scrollX = this.scrollX;
+    this._scrollX = this.scrollX;
   }
 
 
@@ -179,7 +191,7 @@ export default class ScrollEvents extends EventDispatcher {
 
 
   get directionY() {
-    if (this.speedY === 0 && !this._scrolling) {
+    if (!this._canScrollY || (this.speedY === 0 && !this._scrolling)) {
       this._directionY = ScrollEvents.NONE;
     } else {
       if (this.speedY > 0) {
@@ -192,18 +204,28 @@ export default class ScrollEvents extends EventDispatcher {
   }
 
   get directionX() {
-    if (this.speedX === 0 && !this._scrolling) {
+    if (!this._canScrollX || (this.speedX === 0 && !this._scrolling)) {
       this._directionX = ScrollEvents.NONE;
     } else {
       if (this.speedX > 0) {
-        this._directionX = ScrollEvents.RIGHT;
-      } else if (this.speedX < 0) {
         this._directionX = ScrollEvents.LEFT;
+      } else if (this.speedX < 0) {
+        this._directionX = ScrollEvents.RIGHT;
       }
     }
     return this._directionX;
   }
 
+  get attributes() {
+    return {
+      y: this.y,
+      x: this.x,
+      speedY: this.speedY,
+      speedX: this.speedX,
+      directionY: this.directionY,
+      directionX: this.directionX
+    };
+  }
 
   get scrollTarget() {
     return this._scrollTarget;
@@ -249,7 +271,6 @@ export default class ScrollEvents extends EventDispatcher {
 
   get clientWidth() {
     return (this._scrollTarget === window ? window.innerWidth : this._scrollTarget.clientWidth);
-    //document.documentElement.clientHeight
   }
 
 
@@ -258,21 +279,21 @@ export default class ScrollEvents extends EventDispatcher {
   }
 
   get scrollWidth() {
-    return (this._scrollTarget === window ? ScrollEvents.documentHeight : this._scrollTarget.scrollHeight);
+    return (this._scrollTarget === window ? ScrollEvents.documentWidth : this._scrollTarget.scrollWidth);
   }
 
   _getWindowScrollPosition() {
     return {
-      y: ScrollEvents.windowScrollY
-      // x: (window.pageXOffset || window.scrollX || 0)
-    }
+      y: ScrollEvents.windowScrollY,
+      x: ScrollEvents.windowScrollX
+    };
   }
 
   _getElementScrollPosition() {
     return {
-      y: this._scrollTarget.scrollTop
-      // x: this._scrollTarget.scrollLeft
-    }
+      y: this._scrollTarget.scrollTop,
+      x: this._scrollTarget.scrollLeft
+    };
   }
 
   onResize() {
@@ -284,7 +305,7 @@ export default class ScrollEvents extends EventDispatcher {
     this._currentStopFrames = 0;
     if (this._firstRender) {
       this._firstRender = false;
-      if (this.y > 1) {
+      if (this.y > 1 || this.x > 1) {
         this.updateScrollPosition();
         this.trigger(ScrollEvents.EVENT_SCROLL_PROGRESS);
         return;
@@ -293,7 +314,7 @@ export default class ScrollEvents extends EventDispatcher {
 
     if (!this._scrolling) {
       this._scrolling = true;
-      this._lastDirection = ScrollEvents.NONE;
+      this._lastDirectionY = ScrollEvents.NONE;
       this.trigger(ScrollEvents.EVENT_SCROLL_START);
       if (this.options.animationFrame) {
         this.nextFrameID = window.requestAnimationFrame(this.onNextFrame);
@@ -309,26 +330,27 @@ export default class ScrollEvents extends EventDispatcher {
 
   onNextFrame() {
 
-
-
     // this._lastSpeed = this.speedY;
     this._speedY = this._scrollY - this.scrollY;
-    // this._speedX = this._scrollX - this.scrollX;
+    this._speedX = this._scrollX - this.scrollX;
 
-
-    if (this.options.animationFrame && (this._scrolling && (this.speedY === 0 && (this._currentStopFrames++ > this._stopFrames)))) {
+    var speed = (+this.speedY) + (+this.speedX);
+    if (this.options.animationFrame && (this._scrolling && (speed === 0 && (this._currentStopFrames++ > this._stopFrames)))) {
       this.onScrollStop();
       return;
     }
 
     this.updateScrollPosition();
 
-    if (this._lastDirection !== this.directionY) {
+    if (this._lastDirectionY !== this.directionY) {
       this.trigger('scroll:' + ScrollEvents.directionToString(this.directionY));
     }
+    if (this._lastDirectionX !== this.directionX) {
+      this.trigger('scroll:' + ScrollEvents.directionToString(this.directionX));
+    }
 
-    this._lastDirection = this.directionY;
-
+    this._lastDirectionY = this.directionY;
+    this._lastDirectionX = this.directionX;
 
     this.trigger(ScrollEvents.EVENT_SCROLL_PROGRESS);
 
@@ -338,23 +360,32 @@ export default class ScrollEvents extends EventDispatcher {
   }
 
   onScrollStop() {
+
     this._scrolling = false;
     this.updateScrollPosition();
 
-
     this.trigger(ScrollEvents.EVENT_SCROLL_STOP);
 
-    if (this.y <= 0) {
-      this.trigger(ScrollEvents.EVENT_SCROLL_TOP);
-    } else if (this.y + this.clientHeight >= this.scrollHeight) {
-        this.trigger(ScrollEvents.EVENT_SCROLL_BOTTOM);
+    if (this._canScrollY) {
+      if (this.y <= 0) {
+        this.trigger(ScrollEvents.EVENT_SCROLL_MIN);
+      } else if (this.y + this.clientHeight >= this.scrollHeight) {
+        this.trigger(ScrollEvents.EVENT_SCROLL_MAX);
       }
+    }
+
+    if (this._canScrollX) {
+      if (this.x <= 0) {
+        this.trigger(ScrollEvents.EVENT_SCROLL_MIN);
+      } else if (this.x + this.clientWidth >= this.scrollWidth) {
+        this.trigger(ScrollEvents.EVENT_SCROLL_MAX);
+      }
+    }
 
     if (this.options.animationFrame) {
       this._cancelNextFrame();
       this._currentStopFrames = 0;
     }
-
   }
 
   _cancelNextFrame() {
@@ -364,28 +395,8 @@ export default class ScrollEvents extends EventDispatcher {
 
 }
 
-
-// var passiveEvents = null;
-
 class Can {
   static get animationFrame() {
     return !!(window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame);
   };
-
-
-  // static get passiveEvents() {
-  //   if (passiveEvents !== null) {
-  //     return passiveEvents;
-  //   }
-  //   try {
-  //     var opts = Object.defineProperty({}, 'passive', {
-  //       get: () => {
-  //         passiveEvents = true;
-  //       }
-  //     });
-  //     window.addEventListener("test", null, opts);
-  //   } catch (e) {
-  //     passiveEvents = false;
-  //   }
-  // }
 }

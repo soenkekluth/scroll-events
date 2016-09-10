@@ -13,8 +13,14 @@
 
 <body>
   <div class="follower"></div>
-  <div class="overflow">
+  <div class="overflow-y">
     <div class="overflow-content">
+      <h2>scroll vertical</h2>
+    </div>
+  </div>
+  <div class="overflow-x">
+    <div class="overflow-content">
+      <h2>scroll horizontal</h2>
     </div>
   </div>
   <script src="../dist/scroll-events.browser.js"></script>
@@ -23,11 +29,24 @@
   var prefixedTransform = PrefixFree.prefixSelector('transform');
 
 
+  function onScroll(e) {
+    console.log(e.target.className + '   ' + e.type, ' ', e.currentTarget.attributes);
+  };
+
+  function addScrollHandler(scroll) {
+    return scroll
+      .on('scroll:start', onScroll)
+      .on('scroll:progress', onScroll)
+      .on('scroll:stop', onScroll)
+      .on('scroll:left', onScroll)
+      .on('scroll:right', onScroll)
+      .on('scroll:down', onScroll)
+      .on('scroll:up', onScroll)
+      .on('scroll:min', onScroll)
+      .on('scroll:max', onScroll);
+  }
 
   var scroll = new ScrollEvents();
-
-
-  window.scroll = scroll;
   scroll
     .on('scroll:resize', function(event) {
       console.log('========== scroll:resize =============', scroll.clientHeight, scroll.clientWidth);
@@ -38,11 +57,11 @@
     .on('scroll:up', function(event) {
       console.log('========== scroll:up =============');
     })
-    .on('scroll:top', function(event) {
-      console.log('========== scroll:top =============');
+    .on('scroll:min', function(event) {
+      console.log('========== scroll:min =============');
     })
-    .on('scroll:bottom', function(event) {
-      console.log('========== scroll:bottom =============');
+    .on('scroll:max', function(event) {
+      console.log('========== scroll:max =============');
     })
     .on('scroll:start', function(event) {
       console.log('scroll:start     y: ' + scroll.y + '  direction: ' + scroll.directionY + ' (' + ScrollEvents.directionToString(scroll.directionY) + ')')
@@ -58,30 +77,11 @@
     });
 
 
-  var scroll2 = new ScrollEvents(document.querySelector('.overflow'));
+  var scroll2 = new ScrollEvents(document.querySelector('.overflow-y'));
+  var scroll3 = new ScrollEvents(document.querySelector('.overflow-x'));
 
-  scroll2
-  .on('scroll:start', function(event) {
-    console.log('scroll2:start     y: ' + scroll2.y + '  direction: ' + scroll2.directionY + ' (' + ScrollEvents.directionToString(scroll2.directionY) + ')')
-  })
-  .on('scroll:progress', function(event) {
-    console.log('scroll2:progress  y: ' + scroll2.y + '  speed: ' + scroll2.speedY + '  direction: ' + scroll2.directionY + ' (' + ScrollEvents.directionToString(scroll2.directionY) + ')')
-  })
-  .on('scroll:stop', function(event) {
-    console.log('scroll2:stop      y: ' + scroll2.y + '  direction: ' + scroll2.directionY + ' (' + ScrollEvents.directionToString(scroll2.directionY) + ')')
-  })
-  .on('scroll:down', function(event) {
-    console.log('========== scroll2:down =============');
-  })
-  .on('scroll:up', function(event) {
-    console.log('========== scroll2:up =============');
-  })
-  .on('scroll:top', function(event) {
-    console.log('========== scroll2:top =============');
-  })
-  .on('scroll:bottom', function(event) {
-    console.log('========== scroll2:bottom =============');
-  })
+  addScrollHandler(scroll2);
+  addScrollHandler(scroll3);
   </script>
 </body>
 

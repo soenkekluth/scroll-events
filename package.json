@@ -1,6 +1,6 @@
 {
   "name": "scroll-events",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "Performant Custom ScrollEvents Events",
   "main": "dist/scroll-events.js",
   "jsnext:main": "src/scroll-events.js",
@@ -43,8 +43,8 @@
   },
   "homepage": "https://github.com/soenkekluth/scroll-events#readme",
   "dependencies": {
-    "delegatejs": "1.0.1",
-    "eventdispatcher": "1.5.1"
+    "delegatejs": "1.1.0",
+    "eventdispatcher": "1.6.0"
   },
   "devDependencies": {
     "babel-cli": "6.14.0",
