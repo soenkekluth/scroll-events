@@ -16,6 +16,10 @@ var _eventdispatcher = require('eventdispatcher');
 
 var _eventdispatcher2 = _interopRequireDefault(_eventdispatcher);
 
+var _scrollParent = require('./scroll-parent');
+
+var _scrollParent2 = _interopRequireDefault(_scrollParent);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -39,6 +43,11 @@ var ScrollEvents = function (_EventDispatcher) {
     key: 'hasInstance',
     value: function hasInstance(scrollTarget) {
       return typeof scrollTarget.scrollEvents !== 'undefined';
+    }
+  }, {
+    key: 'getScrollParent',
+    value: function getScrollParent(element) {
+      return (0, _scrollParent2.default)(element);
     }
   }, {
     key: 'unprefixAnimationFrame',

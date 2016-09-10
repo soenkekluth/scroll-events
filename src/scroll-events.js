@@ -1,5 +1,6 @@
 import delegate from 'delegatejs';
 import EventDispatcher from 'eventdispatcher';
+import scrollParent from './scroll-parent';
 
 export default class ScrollEvents extends EventDispatcher {
 
@@ -12,6 +13,10 @@ export default class ScrollEvents extends EventDispatcher {
 
   static hasInstance(scrollTarget) {
     return (typeof scrollTarget.scrollEvents !== 'undefined');
+  }
+
+  static getScrollParent(element){
+    return scrollParent(element);
   }
 
   static hasScrollTarget = ScrollEvents.hasInstance;
