@@ -23,11 +23,12 @@
       <h2>scroll horizontal</h2>
     </div>
   </div>
-  <script src="../dist/scroll-events.browser.js"></script>
+  <script src="../dist/scroll-events.min.js"></script>
   <script>
   var follower = document.querySelector('.follower');
   var prefixedTransform = PrefixFree.prefixSelector('transform');
 
+  window.console = window.console || function(){}
 
   function onScroll(e) {
     console.log(e.target.className + '   ' + e.type, ' ', e.currentTarget.attributes);

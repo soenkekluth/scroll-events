@@ -33,8 +33,10 @@ export default class ScrollEvents extends EventDispatcher {
   }
 
   static unprefixAnimationFrame() {
-    window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
-    window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame;
+    if (!window.requestAnimationFrame) {
+      window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+      window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame;
+    }
   }
 
   static UP = -1;
@@ -74,14 +76,13 @@ export default class ScrollEvents extends EventDispatcher {
       return ScrollEvents.getInstance(scrollTarget);
     }
 
-    super({target: scrollTarget});
+    super({ target: scrollTarget });
 
     scrollTarget.scrollEvents = this;
     this._scrollTarget = scrollTarget;
     this.options = options;
 
-    this.options.animationFrame = Can.animationFrame;
-    if (this.options.animationFrame) {
+    if (Can.animationFrame) {
       ScrollEvents.unprefixAnimationFrame();
     }
 
@@ -94,7 +95,6 @@ export default class ScrollEvents extends EventDispatcher {
     this._destroyed = false;
     this._scrollY = 0;
     this._scrollX = 0;
-    this._timeout = 0;
     this._speedY = 0;
     this._speedX = 0;
     this._lastSpeed = 0;
@@ -315,15 +315,12 @@ export default class ScrollEvents extends EventDispatcher {
     if (!this._scrolling) {
       this._scrolling = true;
       this._lastDirectionY = ScrollEvents.NONE;
+      this._lastDirectionX = ScrollEvents.NONE;
       this.trigger(ScrollEvents.EVENT_SCROLL_START);
-      if (this.options.animationFrame) {
+      if (Can.animationFrame) {
         this.nextFrameID = window.requestAnimationFrame(this.onNextFrame);
       } else {
-        clearTimeout(this._timeout);
         this.onNextFrame();
-        this._timeout = setTimeout(() => {
-          this.onScrollStop();
-        }, 100);
       }
     }
   }
@@ -335,7 +332,7 @@ export default class ScrollEvents extends EventDispatcher {
     this._speedX = this._scrollX - this.scrollX;
 
     var speed = (+this.speedY) + (+this.speedX);
-    if (this.options.animationFrame && (this._scrolling && (speed === 0 && (this._currentStopFrames++ > this._stopFrames)))) {
+    if (this._scrolling && (speed === 0 && (this._currentStopFrames++ > this._stopFrames))) {
       this.onScrollStop();
       return;
     }
@@ -354,8 +351,12 @@ export default class ScrollEvents extends EventDispatcher {
 
     this.trigger(ScrollEvents.EVENT_SCROLL_PROGRESS);
 
-    if (this.options.animationFrame) {
+    if (Can.animationFrame) {
       this.nextFrameID = window.requestAnimationFrame(this.onNextFrame);
+    } else {
+      this._nextTimeout = setTimeout(() => {
+        this.onNextFrame();
+      }, 1000 / 60);
     }
   }
 
@@ -382,15 +383,17 @@ export default class ScrollEvents extends EventDispatcher {
       }
     }
 
-    if (this.options.animationFrame) {
-      this._cancelNextFrame();
-      this._currentStopFrames = 0;
-    }
+    this._currentStopFrames = 0;
+    this._cancelNextFrame();
   }
 
   _cancelNextFrame() {
-    window.cancelAnimationFrame(this.nextFrameID);
-    this.nextFrameID = -1;
+    if (Can.animationFrame) {
+      window.cancelAnimationFrame(this.nextFrameID);
+      this.nextFrameID = -1;
+    } else {
+      clearTimeout(this._nextTimeout);
+    }
   }
 
 }

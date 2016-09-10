@@ -1,18 +1,18 @@
 {
   "name": "scroll-events",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Performant Custom ScrollEvents Events",
   "main": "dist/scroll-events.js",
   "jsnext:main": "src/scroll-events.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-js": "browserify --fast -e src/index.js -d --standalone ScrollEvents -t babelify | derequire | exorcist dist/scroll-events.browser.js.map > dist/scroll-events.browser.js",
-    "dist-js": "BABEL_ENV=production NODE_ENV=production browserify -e src/index.js --standalone ScrollEvents -t babelify | derequire > dist/scroll-events.browser.js",
-    "dist-js-min": "uglifyjs -cmv dist/scroll-events.browser.js > dist/scroll-events.browser.min.js",
+    "build-js": "browserify --fast -e src/scroll-events.js -d --standalone ScrollEvents -t babelify | derequire | exorcist dist/scroll-events.min.js.map > dist/scroll-events.min.js",
+    "dist-js": "BABEL_ENV=production NODE_ENV=production browserify -e src/scroll-events.js --standalone ScrollEvents -t babelify | derequire > dist/scroll-events.min.js",
+    "dist-js-min": "uglifyjs -cmv dist/scroll-events.min.js -o dist/scroll-events.min.js",
     "dist": "cp src/scroll-events.css dist/ && npm run dist-js && npm run dist-js-min && npm run build-lib",
     "start": "run-p watch-js server",
     "build-lib": "BABEL_ENV=production babel src -d dist",
-    "watch-js": "watchify -d --poll=100 --fast --standalone ScrollEvents -e src/index.js -t babelify -o 'exorcist dist/scroll-events.browser.js.map > dist/scroll-events.browser.js' -v",
+    "watch-js": "watchify -d --poll=100 --fast --standalone ScrollEvents -e src/scroll-events.js -t babelify -o 'exorcist dist/scroll-events.min.js.map > dist/scroll-events.min.js' -v",
     "server": "browser-sync start --no-ghost-mode --server --directory --files 'demo/**/**, dist/*.js' --startPath demo/index.html"
   },
   "repository": {
