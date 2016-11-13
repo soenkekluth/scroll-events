@@ -1,4 +1,3 @@
-import delegate from 'delegatejs';
 import EventDispatcher from 'eventdispatcher';
 import scrollParent from './scroll-parent';
 
@@ -114,11 +113,11 @@ export default class ScrollEvents extends EventDispatcher {
     this._canScrollY = false;
     this._canScrollX = false;
 
-    this.getScrollPosition = (this._scrollTarget === window) ? delegate(this, this._getWindowScrollPosition) : delegate(this, this._getElementScrollPosition);
+    this.getScrollPosition = (this._scrollTarget === window) ?  this._getWindowScrollPosition.bind(this) : this._getElementScrollPosition.bind(this);
 
-    this.onScroll = delegate(this, this.onScroll);
-    this.onResize = delegate(this, this.onResize);
-    this.onNextFrame = delegate(this, this.onNextFrame);
+    this.onScroll = this.onScroll.bind(this);
+    this.onResize = this.onResize.bind(this);
+    this.onNextFrame = this.onNextFrame.bind(this);
 
     this.updateScrollPosition();
 
@@ -406,5 +405,5 @@ export default class ScrollEvents extends EventDispatcher {
 class Can {
   static get animationFrame() {
     return !!(window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame);
-  };
+  }
 }

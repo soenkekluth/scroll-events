@@ -8,10 +8,6 @@ var _get = function get(object, property, receiver) { if (object === null) objec
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _delegatejs = require('delegatejs');
-
-var _delegatejs2 = _interopRequireDefault(_delegatejs);
-
 var _eventdispatcher = require('eventdispatcher');
 
 var _eventdispatcher2 = _interopRequireDefault(_eventdispatcher);
@@ -143,11 +139,11 @@ var ScrollEvents = function (_EventDispatcher) {
       this._canScrollY = false;
       this._canScrollX = false;
 
-      this.getScrollPosition = this._scrollTarget === window ? (0, _delegatejs2.default)(this, this._getWindowScrollPosition) : (0, _delegatejs2.default)(this, this._getElementScrollPosition);
+      this.getScrollPosition = this._scrollTarget === window ? this._getWindowScrollPosition.bind(this) : this._getElementScrollPosition.bind(this);
 
-      this.onScroll = (0, _delegatejs2.default)(this, this.onScroll);
-      this.onResize = (0, _delegatejs2.default)(this, this.onResize);
-      this.onNextFrame = (0, _delegatejs2.default)(this, this.onNextFrame);
+      this.onScroll = this.onScroll.bind(this);
+      this.onResize = this.onResize.bind(this);
+      this.onNextFrame = this.onNextFrame.bind(this);
 
       this.updateScrollPosition();
 
